@@ -3,12 +3,13 @@ import pandas as pd
 from pypylon import pylon
 import argparse
 
+# This script has been altered to work for testing on my laptop
 
 def capture_frames(number_of_frames=300, gpio_line='3', temperature_region='FpgaCore'):
 
     cam = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice())
     cam.Open()
-
+    print("Successful")
     cam.UserSetSelector = "Default"
     cam.UserSetLoad.Execute()
 
@@ -31,6 +32,7 @@ def capture_frames(number_of_frames=300, gpio_line='3', temperature_region='Fpga
         grab_result = cam.RetrieveResult(5000, pylon.TimeoutHandling_ThrowException)
 
         if grab_result.GrabSucceeded():
+            print("Grab Succeeded")
             images.append(grab_result.Array)
             grabbing_details.append((grab_result.TimeStamp / 1e9, cam.DeviceTemperature.Value))
 
@@ -63,3 +65,4 @@ if __name__ == "main":
 
     print("Complete")
     print(grab_details)
+    grab_details.to_csv("OutputDataCameraHeat.csv")
