@@ -49,3 +49,7 @@ for frame in range(MAX_FRAMES):
     avg_intensity = np.append(avg_intensity,mean)
 
 print(avg_intensity)
+
+pd.DataFrame(avg_intensity).to_csv('avg_intensities.csv')
+
+#TODO: Save the first frame
