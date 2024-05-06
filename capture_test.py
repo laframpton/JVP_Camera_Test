@@ -6,7 +6,7 @@ camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice())
 print(camera)
 
 camera.Open()
-camera.TriggerSource.Value = "Software"
+camera.TriggerSource.Value = "Software" # This sets the camera to work soley off of this software
 
 camera.StartGrabbingMax(300)
 
