@@ -2,9 +2,10 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from pypylon import pylon
 import numpy as np
+import time
 
 class CameraTest:
-    def __init__(self, exposure_time, idle_time, run_time, cycles):
+    def __init__(self, exposure_time, idle_time, run_time, cycles=1):
         self.exposure_time = exposure_time
         self.idle_time = idle_time
         self.run_time = run_time
@@ -16,7 +17,6 @@ class CameraTest:
     def run(self): #TODO: Allow an input to decide whether this is being triggered with software or with hardware triggering
         self.camera.Open()
         self.camera.TriggerSource.Value = "Software" # This sets the camera to work soley off of this software
-
         self.camera.StartGrabbing()
 
         self.images = []
@@ -25,14 +25,23 @@ class CameraTest:
         self.camera.DeviceTemperatureSelector.Value = "FpgaCore"
         print('Capturing the temperature at: ' + self.camera.DeviceTemperatureSelector.Value)
 
-        while self.camera.IsGrabbing():
-            self.grab_result = self.camera.RetrieveResult(self.exposure_time, pylon.TimeoutHandling_ThrowException)
+        self.stime = time.monotonic()
+        self.currtime = 0
 
-            if self.grab_result.GrabSucceeded():
-                self.images.append(self.grab_result.Array)
-                self.grabbing_details.append((self.grab_result.TimeStamp / 1e9, self.camera.DeviceTemperature.Value))
+        for c in range(self.cycles): #TODO: Add idle time
+            print(r'cycle number:', c)
+            while self.camera.IsGrabbing() and (self.currtime - self.stime < self.run_time):
+                self.grab_result = self.camera.RetrieveResult(self.exposure_time, pylon.TimeoutHandling_ThrowException)
+                self.currtime = time.monotonic()
 
-            self.grab_result.Release()
+                if self.grab_result.GrabSucceeded():
+                    self.images.append(self.grab_result.Array)
+                    self.grabbing_details.append((self.grab_result.TimeStamp / 1e9, self.camera.DeviceTemperature.Value))
+
+                if self.camera.DeviceTemperature.Value > 85:
+                    print(r'Warning, ', self.camera.DeviceTemperature.Value)
+
+                self.grab_result.Release()
 
         self.camera.StopGrabbing()
 
@@ -51,12 +60,12 @@ class CameraTest:
         print(pd.DataFrame(self.images[0]).describe())
 
         self.avg_intensity = np.empty((0,0))
-        for frame in range(self.max_frames):
+        for frame in range(len(self.images)):
             self.mean = np.array(self.images[frame]).mean()
             self.avg_intensity = np.append(self.avg_intensity,self.mean)
 
         print(self.avg_intensity)
 
 if __name__ == '__main__':
-    capture_test = CameraTest(300, 20000, 0, 300, 1)
+    capture_test = CameraTest(20000, 0, 10, 1)
     capture_test.run()
