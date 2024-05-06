@@ -25,11 +25,11 @@ class CameraTest:
         self.camera.DeviceTemperatureSelector.Value = "FpgaCore"
         print('Capturing the temperature at: ' + self.camera.DeviceTemperatureSelector.Value)
 
-        self.stime = time.monotonic()
-        self.currtime = 0
-
         for c in range(self.cycles): #TODO: Add idle time
-            print(r'cycle number:', c)
+            self.stime = time.monotonic()
+            self.currtime = 0
+            print(r'Cycle number:', c)
+
             while self.camera.IsGrabbing() and (self.currtime - self.stime < self.run_time):
                 self.grab_result = self.camera.RetrieveResult(self.exposure_time, pylon.TimeoutHandling_ThrowException)
                 self.currtime = time.monotonic()
