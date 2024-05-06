@@ -14,7 +14,7 @@ class CameraTest:
         self.camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice())
         print(self.camera)
 
-    def run(self):
+    def run(self): #TODO: Allow an input to decide whether this is being triggered with software or with hardware triggering
         self.camera.Open()
         self.camera.TriggerSource.Value = "Software" # This sets the camera to work soley off of this software
 
@@ -27,13 +27,13 @@ class CameraTest:
         print('Capturing the temperature at: ' + self.camera.DeviceTemperatureSelector.Value)
 
         while self.camera.IsGrabbing():
-            grab_result = self.camera.RetrieveResult(self.exposure_time, pylon.TimeoutHandling_ThrowException)
+            self.grab_result = self.camera.RetrieveResult(self.exposure_time, pylon.TimeoutHandling_ThrowException)
 
-            if grab_result.GrabSucceeded():
-                self.images.append(grab_result.Array)
-                self.grabbing_details.append((grab_result.TimeStamp / 1e9, self.camera.DeviceTemperature.Value))
+            if self.grab_result.GrabSucceeded():
+                self.images.append(self.grab_result.Array)
+                self.grabbing_details.append((self.grab_result.TimeStamp / 1e9, self.camera.DeviceTemperature.Value))
 
-            grab_result.Release()
+            self.grab_result.Release()
 
         self.camera.Close()
 
@@ -49,9 +49,13 @@ class CameraTest:
         ### For testing
         print(pd.DataFrame(self.images[0]).describe())
 
-        avg_intensity = np.empty((0,0))
+        self.avg_intensity = np.empty((0,0))
         for frame in range(self.max_frames):
-            mean = np.array(self.images[frame]).mean()
-            avg_intensity = np.append(avg_intensity,mean)
+            self.mean = np.array(self.images[frame]).mean()
+            self.avg_intensity = np.append(self.avg_intensity,self.mean)
 
-        print(avg_intensity)
+        print(self.avg_intensity)
+
+if __name__ == '__main__':
+    capture_test = CameraTest(300, 20000, 0, 300, 1)
+    capture_test.run()
