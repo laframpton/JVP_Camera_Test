@@ -27,30 +27,32 @@ class CameraTest:
         self.camera.DeviceTemperatureSelector.Value = "FpgaCore"
         print('Capturing the temperature at: ' + self.camera.DeviceTemperatureSelector.Value)
 
-        for c in range(self.cycles): #TODO: Add idle time
-            if self.heat_flag == 1:
+        for c in range(self.cycles): 
+            if self.heat_flag == 1: # Checks if overheating
                 break
-            
-            self.stime = time.monotonic()
-            self.currtime = 0
-            print(r'Cycle number:', c)
+            if self.run_time != 0:
+                self.stime = time.monotonic()
+                self.currtime = 0
+                print(r'Cycle number:', c)
 
-            while self.camera.IsGrabbing() and (self.currtime - self.stime < self.run_time):
-                self.grab_result = self.camera.RetrieveResult(self.exposure_time, pylon.TimeoutHandling_ThrowException)
-                self.currtime = time.monotonic()
+                while self.camera.IsGrabbing() and (self.currtime - self.stime < self.run_time):
+                    self.grab_result = self.camera.RetrieveResult(self.exposure_time, pylon.TimeoutHandling_ThrowException)
+                    self.currtime = time.monotonic()
 
-                if self.grab_result.GrabSucceeded():
-                    self.images.append(self.grab_result.Array)
-                    self.grabbing_details.append((self.grab_result.TimeStamp / 1e9, self.camera.DeviceTemperature.Value))
+                    if self.grab_result.GrabSucceeded():
+                        self.images.append(self.grab_result.Array)
+                        self.grabbing_details.append((self.grab_result.TimeStamp / 1e9, self.camera.DeviceTemperature.Value))
 
-                if self.camera.DeviceTemperature.Value >= 85:
-                    print(r'Warning, ', self.camera.DeviceTemperature.Value)
-                elif self.camera.DeviceTemperature.Value >= 100:
-                    print('CRITICAL ERROR, COOL CAMERA')
-                    self.heat_flag = 1
-                    break
+                    if self.camera.DeviceTemperature.Value >= 85:
+                        print(r'Warning, ', self.camera.DeviceTemperature.Value)
+                    elif self.camera.DeviceTemperature.Value >= 100: # If overheating
+                        print('CRITICAL ERROR, COOL CAMERA')
+                        self.heat_flag = 1
+                        break
 
-                self.grab_result.Release()
+                    self.grab_result.Release()
+            if self.idle_time != 0:
+                pass #TODO: Add idle time
 
         self.camera.StopGrabbing()
 
@@ -76,5 +78,5 @@ class CameraTest:
         print(self.avg_intensity)
 
 if __name__ == '__main__':
-    capture_test = CameraTest(20000, 0, 10, 1)
+    capture_test = CameraTest(20000, 0, 20, 1)
     capture_test.run()
