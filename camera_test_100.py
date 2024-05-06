@@ -4,8 +4,7 @@ from pypylon import pylon
 import numpy as np
 
 class CameraTest:
-    def __init__(self, max_frames, exposure_time, idle_time, run_time, cycles):
-        self.max_frames = max_frames
+    def __init__(self, exposure_time, idle_time, run_time, cycles):
         self.exposure_time = exposure_time
         self.idle_time = idle_time
         self.run_time = run_time
@@ -18,7 +17,7 @@ class CameraTest:
         self.camera.Open()
         self.camera.TriggerSource.Value = "Software" # This sets the camera to work soley off of this software
 
-        self.camera.StartGrabbingMax(self.max_frames)
+        self.camera.StartGrabbing()
 
         self.images = []
         self.grabbing_details = []
