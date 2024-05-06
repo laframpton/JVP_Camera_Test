@@ -36,5 +36,7 @@ plt.legend()
 plt.ylim([30, 100])
 
 print(grabbing_details)
-print(images[1])
-pd.DataFrame(images[1]).to_csv('imagesdf.csv')
+
+### For testing
+print(pd.DataFrame(images[1]).describe())
+#pd.DataFrame(images[1]).to_csv('imagesdf.csv')
