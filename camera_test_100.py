@@ -18,6 +18,7 @@ class CameraTest:
 
     def run(self): #TODO: Allow an input to decide whether this is being triggered with software or with hardware triggering
         self.camera.Open()
+        #run("echo 'on' > '/sys/bus/usb/devices/2-1.4/power/control'", shell=True)
         self.camera.TriggerSource.Value = "Software" # This sets the camera to work soley off of this software
         self.camera.StartGrabbing()
 
@@ -53,6 +54,12 @@ class CameraTest:
                     self.grab_result.Release()
             if self.idle_time != 0:
                 pass #TODO: Add idle time
+                #run(
+                #    "echo '0' > '/sys/bus/usb/devices/2-1.4/power/autosuspend_delay_ms'",
+                #    shell=True,
+                #)
+                #run("echo 'auto' > '/sys/bus/usb/devices/2-1.4/power/control'", shell=True)
+
 
         self.camera.StopGrabbing()
 
