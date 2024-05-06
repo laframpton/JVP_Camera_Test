@@ -16,6 +16,29 @@ class CameraTest:
         self.camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice())
         print(self.camera)
 
+    def data_process(self):
+        self.grabbing_details = pd.DataFrame(self.grabbing_details, columns=['Time Stamp', 'Temperature'])
+
+        plt.plot(self.grabbing_details['Temperature'], label='Temperature @ ' + "FpgaCore", color='blue')
+        plt.axhline(85, label="Critical Temperature Threshold", color='orange')
+        plt.legend()
+        plt.ylim([30, 100])
+
+        print(self.grabbing_details)
+
+        ### For testing
+        print(pd.DataFrame(self.images[0]).describe())
+
+        self.avg_intensity = np.empty((0,0))
+        for frame in range(len(self.images)):
+            self.mean = np.array(self.images[frame]).mean()
+            self.avg_intensity = np.append(self.avg_intensity,self.mean)
+
+        print(self.avg_intensity)
+
+        pd.DataFrame(self.avg_intensity).to_csv('avg_intensities.csv')
+        np.savetxt('firstframe.txt', self.images[1], fmt='%d')
+
     def run(self): #TODO: Allow an input to decide whether this is being triggered with software or with hardware triggering
         self.camera.Open()
         #run("echo 'on' > '/sys/bus/usb/devices/2-1.4/power/control'", shell=True)
@@ -60,32 +83,11 @@ class CameraTest:
                 #)
                 #run("echo 'auto' > '/sys/bus/usb/devices/2-1.4/power/control'", shell=True)
 
-
         self.camera.StopGrabbing()
 
         self.camera.Close()
 
-        self.grabbing_details = pd.DataFrame(self.grabbing_details, columns=['Time Stamp', 'Temperature'])
-
-        plt.plot(self.grabbing_details['Temperature'], label='Temperature @ ' + "FpgaCore", color='blue')
-        plt.axhline(85, label="Critical Temperature Threshold", color='orange')
-        plt.legend()
-        plt.ylim([30, 100])
-
-        print(self.grabbing_details)
-
-        ### For testing
-        print(pd.DataFrame(self.images[0]).describe())
-
-        self.avg_intensity = np.empty((0,0))
-        for frame in range(len(self.images)):
-            self.mean = np.array(self.images[frame]).mean()
-            self.avg_intensity = np.append(self.avg_intensity,self.mean)
-
-        print(self.avg_intensity)
-
-        pd.DataFrame(self.avg_intensity).to_csv('avg_intensities.csv')
-        np.savetxt('firstframe.txt', self.images[1], fmt='%d')
+        self.data_process()
 
 if __name__ == '__main__':
     capture_test = CameraTest(20000, 0, 20, 1)
