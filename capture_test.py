@@ -51,5 +51,6 @@ for frame in range(MAX_FRAMES):
 print(avg_intensity)
 
 pd.DataFrame(avg_intensity).to_csv('avg_intensities.csv')
+np.savetxt('firstframe.txt', images[1], fmt='%d')
 
 #TODO: Save the first frame
