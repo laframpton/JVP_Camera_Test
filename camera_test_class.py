@@ -74,7 +74,6 @@ class CameraTest:
 
                     self.grab_result.Release()
             if self.idle_time != 0:
-                pass #TODO: Add idle time
                 #run(
                 #    "echo '0' > '/sys/bus/usb/devices/2-1.4/power/autosuspend_delay_ms'",
                 #    shell=True,
