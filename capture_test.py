@@ -18,7 +18,7 @@ camera.DeviceTemperatureSelector.Value = "FpgaCore"
 print('Capturing the temperature at: ' + camera.DeviceTemperatureSelector.Value)
 
 while camera.IsGrabbing():
-    grab_result = camera.RetrieveResult(5000, pylon.TimeoutHandling_ThrowException)
+    grab_result = camera.RetrieveResult(20000, pylon.TimeoutHandling_ThrowException)
 
     if grab_result.GrabSucceeded():
         images.append(grab_result.Array)
@@ -38,5 +38,5 @@ plt.ylim([30, 100])
 print(grabbing_details)
 
 ### For testing
-print(pd.DataFrame(images[1]).describe())
+print(pd.DataFrame(images[0]).describe())
 #pd.DataFrame(images[1]).to_csv('imagesdf.csv')
