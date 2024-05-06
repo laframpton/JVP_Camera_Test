@@ -11,6 +11,8 @@ class CameraTest:
         self.run_time = run_time
         self.cycles = cycles
 
+        self.heat_flag = 0
+
         self.camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice())
         print(self.camera)
 
@@ -26,6 +28,9 @@ class CameraTest:
         print('Capturing the temperature at: ' + self.camera.DeviceTemperatureSelector.Value)
 
         for c in range(self.cycles): #TODO: Add idle time
+            if self.heat_flag == 1:
+                break
+            
             self.stime = time.monotonic()
             self.currtime = 0
             print(r'Cycle number:', c)
@@ -38,8 +43,12 @@ class CameraTest:
                     self.images.append(self.grab_result.Array)
                     self.grabbing_details.append((self.grab_result.TimeStamp / 1e9, self.camera.DeviceTemperature.Value))
 
-                if self.camera.DeviceTemperature.Value > 85:
+                if self.camera.DeviceTemperature.Value >= 85:
                     print(r'Warning, ', self.camera.DeviceTemperature.Value)
+                elif self.camera.DeviceTemperature.Value >= 100:
+                    print('CRITICAL ERROR, COOL CAMERA')
+                    self.heat_flag = 1
+                    break
 
                 self.grab_result.Release()
 
