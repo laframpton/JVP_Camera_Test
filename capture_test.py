@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 from pypylon import pylon
+import numpy as np
 
 camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice())
 print(camera)
@@ -35,3 +36,5 @@ plt.legend()
 plt.ylim([30, 100])
 
 print(grabbing_details)
+print(images[1])
+pd.DataFrame(images[1]).to_csv('imagesdf.csv')
