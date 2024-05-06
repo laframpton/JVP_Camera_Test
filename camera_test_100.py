@@ -84,6 +84,9 @@ class CameraTest:
 
         print(self.avg_intensity)
 
+        pd.DataFrame(self.avg_intensity).to_csv('avg_intensities.csv')
+        np.savetxt('firstframe.txt', self.images[1], fmt='%d')
+
 if __name__ == '__main__':
     capture_test = CameraTest(20000, 0, 20, 1)
     capture_test.run()
