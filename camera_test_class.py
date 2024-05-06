@@ -83,7 +83,6 @@ class CameraTest:
                 #run("echo 'auto' > '/sys/bus/usb/devices/2-1.4/power/control'", shell=True)
 
         self.camera.StopGrabbing()
-
         self.camera.Close()
 
         self.data_process()
