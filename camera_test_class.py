@@ -12,6 +12,8 @@ class CameraTest:
         self.cycles = cycles
 
         self.heat_flag = 0
+        self.images = []
+        self.grabbing_details = []
 
         self.camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice())
         print(self.camera)
@@ -44,9 +46,6 @@ class CameraTest:
         #run("echo 'on' > '/sys/bus/usb/devices/2-1.4/power/control'", shell=True)
         self.camera.TriggerSource.Value = "Software" # This sets the camera to work soley off of this software
         self.camera.StartGrabbing()
-
-        self.images = []
-        self.grabbing_details = []
 
         self.camera.DeviceTemperatureSelector.Value = "FpgaCore"
         print('Capturing the temperature at: ' + self.camera.DeviceTemperatureSelector.Value)
