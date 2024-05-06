@@ -34,6 +34,8 @@ class CameraTest:
 
             self.grab_result.Release()
 
+        self.camera.StopGrabbing()
+
         self.camera.Close()
 
         self.grabbing_details = pd.DataFrame(self.grabbing_details, columns=['Time Stamp', 'Temperature'])
