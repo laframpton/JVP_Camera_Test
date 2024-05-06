@@ -42,7 +42,6 @@ print(grabbing_details)
 
 ### For testing
 print(pd.DataFrame(images[0]).describe())
-#pd.DataFrame(images[1]).to_csv('imagesdf.csv')
 
 avg_intensity = np.empty((0,0))
 for frame in range(MAX_FRAMES):
