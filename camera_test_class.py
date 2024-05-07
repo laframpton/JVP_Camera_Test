@@ -74,6 +74,7 @@ class CameraTest:
 
                     self.grab_result.Release()
             if self.idle_time != 0:
+                print('Entering Idle')
                 #run(
                 #    "echo '0' > '/sys/bus/usb/devices/2-1.4/power/autosuspend_delay_ms'",
                 #    shell=True,
@@ -88,5 +89,5 @@ class CameraTest:
         self.data_process()
 
 if __name__ == '__main__':
-    capture_test = CameraTest(20000, 0, 20, 1)
+    capture_test = CameraTest(20000, 0, 20, 2)
     capture_test.run()
