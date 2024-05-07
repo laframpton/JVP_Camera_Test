@@ -25,11 +25,7 @@ class Trigger:
             signal.value = False
             time.sleep(self.wait_time)
 
-        time.sleep(waitTime)
-        led.value = False
-
         print("Finished")
 
-SC = MonoSeries()
-SC.dataCollect(10)
-print(SC)
+TestTrigg = Trigger(0.5, 7800, 0, 0, 0)
+TestTrigg.run()
