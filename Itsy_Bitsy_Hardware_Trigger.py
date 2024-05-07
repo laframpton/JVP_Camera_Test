@@ -9,34 +9,24 @@ signal_pin = D10
 signal = digitalio.DigitalInOut(signalPin)
 signal.direction = digitalio.Direction.OUTPUT
 
+startTime = time.monotonic()
+
 class Trigger:
-    def __init__(self, run_time, idle_time, cycles):
+    def __init__(self, frequency, duration, run_time, idle_time, cycles):
+        self.frequency = frequency # number of pulses per second
+        self.wait_time = 1/frequency/2 # seconds between state change
+        self.duration = duration # seconds
+        self.startTime = time.monotonic()
 
-        self.
-
-    def __str__(self):
-        return f"Stamps:{self.stamps} \nData:{self.data}"
-
-    def lightDebounce(self, waitTime=0.2):
-        led.value = True
-        for i in range(8):
-            timeMono = time.monotonic()
-            if i == 0:
-                self.stamps.append(timeMono)
-            timeMonoInt = int(10 * timeMono)
-            self.data.append(timeMonoInt)
-            time.sleep(0.1)
+    def run(self):
+        while time.monotonic - self.startTime < self.duration:
+            signal.value = True
+            time.sleep(self.wait_time)
+            signal.value = False
+            time.sleep(self.wait_time)
 
         time.sleep(waitTime)
         led.value = False
-
-    def dataCollect(self, num):
-        while len(self.data) < num * 8:
-            if switch.value:
-                led.value = False
-
-            else:
-                self.lightDebounce()
 
         print("Finished")
 
