@@ -5,11 +5,12 @@ import numpy as np
 import time
 
 class CameraTest:
-    def __init__(self, exposure_time, idle_time, run_time, cycles=1):
+    def __init__(self, exposure_time, idle_time, run_time, cycles=1, gpio_line='3'):
         self.exposure_time = exposure_time
         self.idle_time = idle_time
         self.run_time = run_time
         self.cycles = cycles
+        self.gpio_line = gpio_line
 
         self.heat_flag = 0
         self.images = []
@@ -44,6 +45,12 @@ class CameraTest:
     def run(self): #TODO: Allow an input to decide whether this is being triggered with software or with hardware triggering
         self.camera.Open()
         self.camera.TriggerSource.Value = "Software" # This sets the camera to work soley off of this software
+        #self.camera.LineSelector = "Line" + gpio_line
+        #self.camera.LineMode = "Input"
+
+        #self.camera.TriggerSelector = "FrameStart"
+        #self.camera.TriggerSource = "Line" + gpio_line
+        #self.camera.TriggerMode = "On"
         self.camera.StartGrabbing()
 
         self.camera.DeviceTemperatureSelector.Value = "FpgaCore"
