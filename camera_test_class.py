@@ -88,7 +88,7 @@ class CameraTest:
     def EnableCamera(self):
         run("echo 'on' > '/sys/bus/usb/devices/2-1.4/power/control'", shell=True)
 
-    def Activate(self): #TODO: Allow an input to decide whether this is being triggered with software or with hardware triggering
+    def Activate(self):
         self.camera.Open()
 
         if self.hardware_trigger == True:
