@@ -5,7 +5,7 @@ import numpy as np
 import time
 from subprocess import run
 
-class CameraTest:
+class HeatTest:
     def __init__(self, exposure_time, idle_time, run_time, cycles=1, gpio_line='3', frame_factor=250, hardware_trigger=False, intensity_protocol='number'):
         self.exposure_time = exposure_time
         self.idle_time = idle_time
@@ -52,13 +52,17 @@ class CameraTest:
         self.camera.TriggerSource = "Line" + self.gpio_line
         self.camera.TriggerMode = "On"
 
-    def IntensityProtocol(self):
+    def IntensityProtocol(self): #TODO: Add functionality for checking LED pixel
         if self.intensity_protocol == 'number':
             self.frame_count += 1
             if self.frame_count % self.frame_factor == 0:
                 self.images.append(self.grab_result.Array)
                 self.mean = self.grab_result.Array.mean()
                 self.avg_intensity = np.append(self.avg_intensity,self.mean)
+        elif self.intensity_protocol == 'state':
+            self.images.append(self.grab_result.Array)
+            self.mean = self.grab_result.Array.mean()
+            self.avg_intensity = np.append(self.avg_intensity,self.mean)
 
     def GrabbingProtocol(self):
         while self.camera.IsGrabbing() and (self.currtime - self.stime < self.run_time):
@@ -66,7 +70,7 @@ class CameraTest:
             self.currtime = time.monotonic()
 
             if self.grab_result.GrabSucceeded():
-                self.IntensityProtocol() # Will check to see if intensity_protocol == 'number', and then act
+                self.IntensityProtocol() # if self.intensity_protocol == 'number':
                 self.frame_count += 1
                 self.grabbing_details.append((self.grab_result.TimeStamp / 1e9, time.localtime(), self.camera.DeviceTemperature.Value))
 
@@ -106,6 +110,7 @@ class CameraTest:
             if self.heat_flag == 1: # Checks if overheating
                 break
             if self.run_time != 0:
+                self.IntensityProtocol() # if self.intensity_protocol == 'state'
                 self.stime = time.monotonic()
                 self.currtime = 0
                 print(r'Cycle number:', c)
@@ -113,6 +118,7 @@ class CameraTest:
                 self.GrabbingProtocol()
 
             if self.idle_time != 0:
+                self.IntensityProtocol() # if self.intensity_protocol == 'state'
                 print('Entering Idle')
                 self.camera.StopGrabbing()
                 #self.EnableCamera()
@@ -126,5 +132,5 @@ class CameraTest:
         self.DataProcess()
 
 if __name__ == '__main__':
-    capture_test = CameraTest(20000, 0, 20, 2)
+    capture_test = HeatTest(20000, 0, 20, 2)
     capture_test.Activate()
