@@ -27,12 +27,6 @@ class HeatTest:
 
     def DataProcess(self):
         self.grabbing_details = pd.DataFrame(self.grabbing_details, columns=['Time Stamp', 'Local Time', 'Temperature'])
-
-        plt.plot(self.grabbing_details['Temperature'], label='Temperature @ ' + "FpgaCore", color='blue')
-        plt.axhline(85, label="Critical Temperature Threshold", color='orange')
-        plt.legend()
-        plt.ylim([30, 100])
-
         print(self.grabbing_details)
 
         ### For testing
@@ -45,7 +39,9 @@ class HeatTest:
         np.savetxt('firstframe.txt', self.images[1], fmt='%d')
 
         for frame in range(len(self.images)):
-            plt.imsave((r'frame', frame, 'time(', time.monotonic(),').png'), np.array(self.images[frame]))
+            plt.imshow(self.images[frame], cmap=plt.cm.binary)
+            plt.axis('off')# Hide axes
+            plt.savefig(('frametime(' + str(time.monotonic()) + ').png'), dpi=100, pad_inches=0.0, bbox_inches='tight')
 
     def HardwareTrigger(self):
         self.camera.LineSelector = "Line" + self.gpio_line
@@ -137,5 +133,5 @@ class HeatTest:
         self.DataProcess()
 
 if __name__ == '__main__':
-    capture_test = HeatTest(8000, 0, 20, 2)
+    capture_test = HeatTest(8000, 0, 5, 2)
     capture_test.Activate()
