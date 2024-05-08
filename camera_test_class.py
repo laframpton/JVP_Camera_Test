@@ -63,11 +63,11 @@ class CameraTest:
             if self.grab_result.GrabSucceeded() and self.frame_count % self.frame_factor == 0:
                 self.frame_count += 1
                 self.images.append(self.grab_result.Array)
-                self.grabbing_details.append((self.grab_result.TimeStamp / 1e9, time.localtime, self.camera.DeviceTemperature.Value))
+                self.grabbing_details.append((self.grab_result.TimeStamp / 1e9, time.localtime(), self.camera.DeviceTemperature.Value))
 
             elif self.grab_result.GrabSucceeded():
                 self.frame_count += 1
-                self.grabbing_details.append((self.grab_result.TimeStamp / 1e9, time.localtime, self.camera.DeviceTemperature.Value))
+                self.grabbing_details.append((self.grab_result.TimeStamp / 1e9, time.localtime(), self.camera.DeviceTemperature.Value))
 
             if self.camera.DeviceTemperature.Value >= 85:
                 print(r'Warning, ', self.camera.DeviceTemperature.Value)
