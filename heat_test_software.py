@@ -44,6 +44,9 @@ class HeatTest:
         pd.DataFrame(self.grabbing_details).to_csv('grabbing_details.csv')
         np.savetxt('firstframe.txt', self.images[1], fmt='%d')
 
+        for frame in range(len(self.images)):
+            plt.imsave((r'frame', frame, 'time(', time.monotonic(),').png'), np.array(self.images[frame]))
+
     def HardwareTrigger(self):
         self.camera.LineSelector = "Line" + self.gpio_line
         self.camera.LineMode = "Input"
@@ -58,6 +61,9 @@ class HeatTest:
             if self.frame_count % self.frame_factor == 0:
                 self.images.append(self.grab_result.Array)
                 self.mean = self.grab_result.Array.mean()
+                print(self.mean)
+                print(self.frame_count)
+                print('Frame Stored')
                 self.avg_intensity = np.append(self.avg_intensity,self.mean)
         elif self.intensity_protocol == 'state':
             self.images.append(self.grab_result.Array)
@@ -71,7 +77,6 @@ class HeatTest:
 
             if self.grab_result.GrabSucceeded():
                 self.IntensityProtocol() # if self.intensity_protocol == 'number':
-                self.frame_count += 1
                 self.grabbing_details.append((self.grab_result.TimeStamp / 1e9, time.localtime(), self.camera.DeviceTemperature.Value))
 
             if self.camera.DeviceTemperature.Value >= 85:
@@ -132,5 +137,5 @@ class HeatTest:
         self.DataProcess()
 
 if __name__ == '__main__':
-    capture_test = HeatTest(20000, 0, 20, 2)
+    capture_test = HeatTest(8000, 0, 20, 2)
     capture_test.Activate()
