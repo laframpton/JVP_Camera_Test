@@ -6,7 +6,7 @@ import time
 from subprocess import run
 
 class CameraTest:
-    def __init__(self, exposure_time, idle_time, run_time, cycles=1, gpio_line='3', frame_factor=50, hardware_trigger=False):
+    def __init__(self, exposure_time, idle_time, run_time, cycles=1, gpio_line='3', frame_factor=250, hardware_trigger=False, intensity_protocol='number'):
         self.exposure_time = exposure_time
         self.idle_time = idle_time
         self.run_time = run_time
@@ -14,11 +14,13 @@ class CameraTest:
         self.gpio_line = gpio_line
         self.frame_factor = frame_factor
         self.hardware_trigger = hardware_trigger
+        self.intensity_protocol = intensity_protocol
 
         self.heat_flag = 0
         self.frame_count = 1
         self.images = []
         self.grabbing_details = []
+        self.avg_intensity = np.empty((0,0))
 
         self.camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice())
         print(self.camera)
@@ -36,11 +38,6 @@ class CameraTest:
         ### For testing
         print(pd.DataFrame(self.images[0]).describe())
 
-        self.avg_intensity = np.empty((0,0))
-        for frame in range(len(self.images)):
-            self.mean = np.array(self.images[frame]).mean()
-            self.avg_intensity = np.append(self.avg_intensity,self.mean)
-
         print(self.avg_intensity)
 
         pd.DataFrame(self.avg_intensity).to_csv('avg_intensities.csv')
@@ -55,17 +52,21 @@ class CameraTest:
         self.camera.TriggerSource = "Line" + self.gpio_line
         self.camera.TriggerMode = "On"
 
+    def IntensityProtocol(self):
+        if self.intensity_protocol == 'number':
+            self.frame_count += 1
+            if self.frame_count % self.frame_factor == 0:
+                self.images.append(self.grab_result.Array)
+                self.mean = self.grab_result.Array.mean()
+                self.avg_intensity = np.append(self.avg_intensity,self.mean)
+
     def GrabbingProtocol(self):
         while self.camera.IsGrabbing() and (self.currtime - self.stime < self.run_time):
             self.grab_result = self.camera.RetrieveResult(self.exposure_time, pylon.TimeoutHandling_ThrowException)
             self.currtime = time.monotonic()
 
-            if self.grab_result.GrabSucceeded() and self.frame_count % self.frame_factor == 0:
-                self.frame_count += 1
-                self.images.append(self.grab_result.Array)
-                self.grabbing_details.append((self.grab_result.TimeStamp / 1e9, time.localtime(), self.camera.DeviceTemperature.Value))
-
-            elif self.grab_result.GrabSucceeded():
+            if self.grab_result.GrabSucceeded():
+                self.IntensityProtocol() # Will check to see if intensity_protocol == 'number', and then act
                 self.frame_count += 1
                 self.grabbing_details.append((self.grab_result.TimeStamp / 1e9, time.localtime(), self.camera.DeviceTemperature.Value))
 
