@@ -40,6 +40,7 @@ class CameraTest:
         print(self.avg_intensity)
 
         pd.DataFrame(self.avg_intensity).to_csv('avg_intensities.csv')
+        pd.DataFrame(self.grabbing_details).to_csv('grabbing_details.csv')
         np.savetxt('firstframe.txt', self.images[1], fmt='%d')
 
     def run(self): #TODO: Allow an input to decide whether this is being triggered with software or with hardware triggering
