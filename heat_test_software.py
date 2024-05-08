@@ -6,8 +6,13 @@ import time
 from subprocess import run
 import pickle
 
+try:
+    import RPi.GPIO as GPIO
+except:
+    import Mock.GPIO as GPIO
+
 class HeatTest:
-    def __init__(self, exposure_time, idle_time, run_time, cycles=1, gpio_line='3', frame_factor=250, hardware_trigger=False, intensity_protocol='number'):
+    def __init__(self, exposure_time, idle_time, run_time, cycles=1, gpio_line='3', led_ring=31, frame_factor=250, hardware_trigger=False, intensity_protocol='number'):
         self.exposure_time = exposure_time
         self.idle_time = idle_time
         self.run_time = run_time
@@ -16,6 +21,7 @@ class HeatTest:
         self.frame_factor = frame_factor
         self.hardware_trigger = hardware_trigger
         self.intensity_protocol = intensity_protocol
+        self.led_ring = led_ring
 
         self.heat_flag = 0
         self.frame_count = 1
@@ -97,8 +103,17 @@ class HeatTest:
     def EnableCamera(self):
         run("echo 'on' > '/sys/bus/usb/devices/2-1.4/power/control'", shell=True)
 
-    def set_lightring(self, value: int):
-        self.write_pin(Pin.led_ring.value, value)
+    def WritePin(self, pin: int, value: int) -> None:
+        try:
+            # GPIO.setup(pin, GPIO.OUT)
+            GPIO.output(pin, value)
+        except ValueError:
+            self.log.info(f"Pin {pin} is not a valid output pin.")
+        finally:
+            pass
+        
+    def SetLightRing(self, value: int):
+        self.WritePin(self.led_ring.value, value)
 
     def Activate(self):
         self.camera.Open()
@@ -117,7 +132,7 @@ class HeatTest:
             if self.heat_flag == 1: # Checks if overheating
                 break
             if self.run_time != 0:
-                self.set_lightring(1) #TODO: Check which is correct int for turning on
+                self.SetLightRing(1) #TODO: Check which is correct int for turning on
                 self.IntensityProtocol() # if self.intensity_protocol == 'state'
                 self.stime = time.monotonic()
                 self.currtime = 0
@@ -126,7 +141,7 @@ class HeatTest:
                 self.GrabbingProtocol()
 
             if self.idle_time != 0:
-                self.set_lightring(0) #TODO
+                self.SetLightRing(0) #TODO
                 self.IntensityProtocol() # if self.intensity_protocol == 'state'
                 print('Entering Idle')
                 self.camera.StopGrabbing()
@@ -136,7 +151,7 @@ class HeatTest:
                 self.camera.StartGrabbing()
 
         try:
-            self.set_lightring(0) #TODO
+            self.SetLightRing(0) #TODO
         except:
             pass
         self.camera.StopGrabbing()
