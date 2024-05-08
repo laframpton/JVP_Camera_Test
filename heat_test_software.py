@@ -4,6 +4,7 @@ from pypylon import pylon
 import numpy as np
 import time
 from subprocess import run
+import pickle
 
 class HeatTest:
     def __init__(self, exposure_time, idle_time, run_time, cycles=1, gpio_line='3', frame_factor=250, hardware_trigger=False, intensity_protocol='number'):
@@ -34,13 +35,15 @@ class HeatTest:
 
         print(self.avg_intensity)
 
-        pd.DataFrame(self.avg_intensity).to_csv('avg_intensities.csv')
-        pd.DataFrame(self.grabbing_details).to_csv('grabbing_details.csv')
-        np.savetxt('firstframe.txt', self.images[1], fmt='%d')
+        ### Saving Data
+        with open('avg_intensities.pkl', 'wb') as file:
+            pickle.dump(self.avg_intensity, file)
+        with open('grabbing_details.pkl', 'wb') as file:
+            pickle.dump(self.grabbing_details, file)
 
         for frame in range(len(self.images)):
             plt.imshow(self.images[frame], cmap=plt.cm.binary)
-            plt.axis('off')# Hide axes
+            plt.axis('off') # Hide axes
             plt.savefig(('frametime(' + str(time.monotonic()) + ').png'), dpi=100, pad_inches=0.0, bbox_inches='tight')
 
     def HardwareTrigger(self):
