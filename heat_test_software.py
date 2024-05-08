@@ -97,6 +97,9 @@ class HeatTest:
     def EnableCamera(self):
         run("echo 'on' > '/sys/bus/usb/devices/2-1.4/power/control'", shell=True)
 
+    def set_lightring(self, value: int):
+        self.write_pin(Pin.led_ring.value, value)
+
     def Activate(self):
         self.camera.Open()
 
@@ -114,6 +117,7 @@ class HeatTest:
             if self.heat_flag == 1: # Checks if overheating
                 break
             if self.run_time != 0:
+                self.set_lightring(1) #TODO: Check which is correct int for turning on
                 self.IntensityProtocol() # if self.intensity_protocol == 'state'
                 self.stime = time.monotonic()
                 self.currtime = 0
@@ -122,6 +126,7 @@ class HeatTest:
                 self.GrabbingProtocol()
 
             if self.idle_time != 0:
+                self.set_lightring(0) #TODO
                 self.IntensityProtocol() # if self.intensity_protocol == 'state'
                 print('Entering Idle')
                 self.camera.StopGrabbing()
@@ -130,6 +135,10 @@ class HeatTest:
                 #self.DisableCamera()
                 self.camera.StartGrabbing()
 
+        try:
+            self.set_lightring(0) #TODO
+        except:
+            pass
         self.camera.StopGrabbing()
         self.camera.Close()
 
