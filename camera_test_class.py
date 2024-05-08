@@ -20,7 +20,7 @@ class CameraTest:
         print(self.camera)
 
     def data_process(self):
-        self.grabbing_details = pd.DataFrame(self.grabbing_details, columns=['Time Stamp', 'Temperature'])
+        self.grabbing_details = pd.DataFrame(self.grabbing_details, columns=['Time Stamp', 'Local Time', 'Temperature'])
 
         plt.plot(self.grabbing_details['Temperature'], label='Temperature @ ' + "FpgaCore", color='blue')
         plt.axhline(85, label="Critical Temperature Threshold", color='orange')
@@ -71,7 +71,7 @@ class CameraTest:
 
                     if self.grab_result.GrabSucceeded():
                         self.images.append(self.grab_result.Array)
-                        self.grabbing_details.append((self.grab_result.TimeStamp / 1e9, self.camera.DeviceTemperature.Value))
+                        self.grabbing_details.append((self.grab_result.TimeStamp / 1e9, time.localtime(), self.camera.DeviceTemperature.Value))
 
                     if self.camera.DeviceTemperature.Value >= 85:
                         print(r'Warning, ', self.camera.DeviceTemperature.Value)
