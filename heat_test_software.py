@@ -6,10 +6,8 @@ import time
 from subprocess import run
 import pickle
 
-#try:
-    #import RPi.GPIO as GPIO
-#except:
-    #import Mock.GPIO as GPIO
+import RPi.GPIO as GPIO
+
 
 class HeatTest:
     def __init__(self, exposure_time, idle_time, run_time, cycles=1, gpio_line='3', led_ring=31, frame_factor=250, hardware_trigger=False, intensity_protocol='number'):
