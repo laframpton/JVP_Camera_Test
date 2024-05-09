@@ -10,7 +10,7 @@ import RPi.GPIO as GPIO
 
 
 class HeatTest:
-    def __init__(self, exposure_time, idle_time, run_time, cycles=1, gpio_line='3', led_ring=31, frame_factor=250, hardware_trigger=False, intensity_protocol='number'):
+    def __init__(self, exposure_time, idle_time, run_time, cycles=1, gpio_line='3', led_ring=31, frame_factor=250, hardware_trigger=False, intensity_protocol='number', image_slice=[550:650,650:800]):
         self.exposure_time = exposure_time
         self.idle_time = idle_time
         self.run_time = run_time
@@ -20,12 +20,14 @@ class HeatTest:
         self.hardware_trigger = hardware_trigger
         self.intensity_protocol = intensity_protocol
         self.led_ring = led_ring
+        self.image_slice = image_slice
 
         self.heat_flag = 0
         self.frame_count = 1
         self.images = []
         self.grabbing_details = []
         self.avg_intensity = np.empty((0,0))
+        self.slice_intensity = np.empty((0,0))
 
         # Setup for lightring
         #GPIO.setup(led_ring.value, GPIO.OUT)
@@ -52,6 +54,9 @@ class HeatTest:
         # Subsection Image
         self.ImageSubsection()
 
+        with open('slice_intensities.pkl', 'wb') as file:
+            pickle.dump(self.slice_intensity, file)
+
         for frame in range(len(self.images)):
             plt.imshow(self.images[frame], cmap=plt.cm.binary)
             plt.axis('off') # Hide axes
@@ -59,9 +64,11 @@ class HeatTest:
 
     def ImageSubsection(self):
         for frame in range(len(self.images)):
+            self.mean = np.array(self.images[frame])[self.image_slice].mean()
+            self.slice_intensity = np.append(self.slice_intensity,self.mean)
             plt.imshow(np.array(self.images[frame])[550:650,650:800], cmap=plt.cm.binary)
             plt.axis('on')
-            plt.savefig('ImageZero.png', dpi=100, pad_inches=0.0, bbox_inches='tight')
+            plt.savefig(str(time.monotonic()) + 'ImageSlice.png', dpi=100, pad_inches=0.0, bbox_inches='tight')
 
     def HardwareTrigger(self):
         self.camera.LineSelector = "Line" + self.gpio_line
