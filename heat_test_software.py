@@ -10,7 +10,7 @@ import RPi.GPIO as GPIO
 
 
 class HeatTest:
-    def __init__(self, exposure_time, idle_time, run_time, cycles=1, gpio_line='3', led_ring=31, frame_factor=250, hardware_trigger=False, intensity_protocol='number', image_slice=[550:650,650:800]):
+    def __init__(self, exposure_time, idle_time, run_time, cycles=1, gpio_line='3', led_ring=31, frame_factor=250, hardware_trigger=False, intensity_protocol='number'):
         self.exposure_time = exposure_time
         self.idle_time = idle_time
         self.run_time = run_time
@@ -20,7 +20,6 @@ class HeatTest:
         self.hardware_trigger = hardware_trigger
         self.intensity_protocol = intensity_protocol
         self.led_ring = led_ring
-        self.image_slice = image_slice
 
         self.heat_flag = 0
         self.frame_count = 1
@@ -67,7 +66,7 @@ class HeatTest:
 
     def ImageSubsection(self):
         for frame in range(len(self.images)):
-            self.mean = np.array(self.images[frame])[self.image_slice].mean()
+            self.mean = np.array(self.images[frame])[550:650,650:800].mean()
             self.slice_intensity = np.append(self.slice_intensity,self.mean)
             plt.imshow(np.array(self.images[frame])[550:650,650:800], cmap=plt.cm.binary)
             plt.axis('on')
