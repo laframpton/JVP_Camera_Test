@@ -57,10 +57,13 @@ class HeatTest:
         with open('slice_intensities.pkl', 'wb') as file:
             pickle.dump(self.slice_intensity, file)
 
+        self.FullImageSave()
+
+    def FullImageSave(self):
         for frame in range(len(self.images)):
             plt.imshow(self.images[frame], cmap=plt.cm.binary)
-            plt.axis('off') # Hide axes
-            plt.savefig(('frametime(' + str(time.monotonic()) + ').png'), dpi=100, pad_inches=0.0, bbox_inches='tight')
+            plt.axis('on') # Hide axes
+            plt.savefig((str(frame) + 'frame(' + str(time.monotonic()) + ').png'), dpi=100, pad_inches=0.0, bbox_inches='tight')
 
     def ImageSubsection(self):
         for frame in range(len(self.images)):
@@ -68,7 +71,7 @@ class HeatTest:
             self.slice_intensity = np.append(self.slice_intensity,self.mean)
             plt.imshow(np.array(self.images[frame])[550:650,650:800], cmap=plt.cm.binary)
             plt.axis('on')
-            plt.savefig(str(time.monotonic()) + 'ImageSlice.png', dpi=100, pad_inches=0.0, bbox_inches='tight')
+            plt.savefig(str(frame) + 'slice(' + str(time.monotonic()) + ').png', dpi=100, pad_inches=0.0, bbox_inches='tight')
 
     def HardwareTrigger(self):
         self.camera.LineSelector = "Line" + self.gpio_line
