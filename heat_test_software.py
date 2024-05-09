@@ -60,9 +60,10 @@ class HeatTest:
             plt.savefig(('frametime(' + str(time.monotonic()) + ').png'), dpi=100, pad_inches=0.0, bbox_inches='tight')
 
     def ImageSubsection(self):
-        plt.imshow(np.array(self.images[0])[550:650,650:800], cmap=plt.cm.binary)
-        plt.axis('on')
-        plt.savefig('ImageZero.png', dpi=100, pad_inches=0.0, bbox_inches='tight')
+        for frame in range(len(self.images)):
+            plt.imshow(np.array(self.images[frame])[550:650,650:800], cmap=plt.cm.binary)
+            plt.axis('on')
+            plt.savefig('ImageZero.png', dpi=100, pad_inches=0.0, bbox_inches='tight')
 
     def HardwareTrigger(self):
         self.camera.LineSelector = "Line" + self.gpio_line
