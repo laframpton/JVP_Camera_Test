@@ -6,10 +6,10 @@ import time
 from subprocess import run
 import pickle
 
-try:
-    import RPi.GPIO as GPIO
-except:
-    import Mock.GPIO as GPIO
+#try:
+    #import RPi.GPIO as GPIO
+#except:
+    #import Mock.GPIO as GPIO
 
 class HeatTest:
     def __init__(self, exposure_time, idle_time, run_time, cycles=1, gpio_line='3', led_ring=31, frame_factor=250, hardware_trigger=False, intensity_protocol='number'):
@@ -29,9 +29,9 @@ class HeatTest:
         self.grabbing_details = []
         self.avg_intensity = np.empty((0,0))
 
-        # Setup for lightrint
-        GPIO.setup(led_ring.value, GPIO.OUT)
-        GPIO.output(led_ring.value, GPIO.LOW)
+        # Setup for lightring
+        #GPIO.setup(led_ring.value, GPIO.OUT)
+        #GPIO.output(led_ring.value, GPIO.LOW)
 
         self.camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice())
         print(self.camera)
@@ -51,10 +51,18 @@ class HeatTest:
         with open('grabbing_details.pkl', 'wb') as file:
             pickle.dump(self.grabbing_details, file)
 
+        # Subsection Image
+        self.ImageSubsection()
+
         for frame in range(len(self.images)):
             plt.imshow(self.images[frame], cmap=plt.cm.binary)
             plt.axis('off') # Hide axes
             plt.savefig(('frametime(' + str(time.monotonic()) + ').png'), dpi=100, pad_inches=0.0, bbox_inches='tight')
+
+    def ImageSubsection(self):
+        plt.imshow(np.array(self.images[0])[550:650,650:800], cmap=plt.cm.binary)
+        plt.axis('on')
+        plt.savefig('ImageZero.png', dpi=100, pad_inches=0.0, bbox_inches='tight')
 
     def HardwareTrigger(self):
         self.camera.LineSelector = "Line" + self.gpio_line
@@ -136,7 +144,7 @@ class HeatTest:
             if self.heat_flag == 1: # Checks if overheating
                 break
             if self.run_time != 0:
-                self.SetLightRing(1) #TODO: Check which is correct int for turning on
+                #self.SetLightRing(1) #TODO: Check which is correct int for turning on
                 self.IntensityProtocol() # if self.intensity_protocol == 'state'
                 self.stime = time.monotonic()
                 self.currtime = 0
@@ -154,10 +162,10 @@ class HeatTest:
                 #self.DisableCamera()
                 self.camera.StartGrabbing()
 
-        try:
-            self.SetLightRing(0) #TODO
-        except:
-            pass
+        #try:
+            #self.SetLightRing(0) #TODO
+        #except:
+            #pass
         self.camera.StopGrabbing()
         self.camera.Close()
 
