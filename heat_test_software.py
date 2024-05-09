@@ -29,8 +29,9 @@ class HeatTest:
         self.slice_intensity = np.empty((0,0))
 
         # Setup for lightring
-        #GPIO.setup(led_ring.value, GPIO.OUT)
-        #GPIO.output(led_ring.value, GPIO.LOW)
+        GPIO.setmode(GPIO.BOARD)
+        GPIO.setup(self.led_ring, GPIO.OUT)
+        GPIO.output(self.led_ring, GPIO.LOW)
 
         self.camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice())
         print(self.camera)
@@ -125,7 +126,6 @@ class HeatTest:
 
     def WritePin(self, pin: int, value: int) -> None:
         try:
-            # GPIO.setup(pin, GPIO.OUT)
             GPIO.output(pin, value)
         except ValueError:
             self.log.info(f"Pin {pin} is not a valid output pin.")
@@ -133,7 +133,7 @@ class HeatTest:
             pass
         
     def SetLightRing(self, value: int):
-        self.WritePin(self.led_ring.value, value)
+        self.WritePin(self.led_ring, value)
 
     def Activate(self):
         self.camera.Open()
@@ -152,7 +152,7 @@ class HeatTest:
             if self.heat_flag == 1: # Checks if overheating
                 break
             if self.run_time != 0:
-                #self.SetLightRing(1) #TODO: Check which is correct int for turning on
+                self.SetLightRing(1)
                 self.IntensityProtocol() # if self.intensity_protocol == 'state'
                 self.stime = time.monotonic()
                 self.currtime = 0
@@ -165,15 +165,15 @@ class HeatTest:
                 self.IntensityProtocol() # if self.intensity_protocol == 'state'
                 print('Entering Idle')
                 self.camera.StopGrabbing()
-                #self.EnableCamera()
+                self.EnableCamera()
                 time.sleep(self.idle_time)
-                #self.DisableCamera()
+                self.DisableCamera()
                 self.camera.StartGrabbing()
 
-        #try:
-            #self.SetLightRing(0) #TODO
-        #except:
-            #pass
+        try:
+            self.SetLightRing(0)
+        except:
+            pass
         self.camera.StopGrabbing()
         self.camera.Close()
 
