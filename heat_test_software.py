@@ -29,6 +29,10 @@ class HeatTest:
         self.grabbing_details = []
         self.avg_intensity = np.empty((0,0))
 
+        # Setup for lightrint
+        GPIO.setup(led_ring.value, GPIO.OUT)
+        GPIO.output(led_ring.value, GPIO.LOW)
+
         self.camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice())
         print(self.camera)
 
