@@ -136,6 +136,11 @@ class HeatTest:
         self.WritePin(self.led_ring, value)
 
     def Activate(self):
+        try:
+            self.EnableCamera()
+        except:
+            pass
+        
         self.camera.Open()
 
         if self.hardware_trigger == True:
@@ -161,7 +166,7 @@ class HeatTest:
                 self.GrabbingProtocol()
 
             if self.idle_time != 0:
-                self.SetLightRing(0) #TODO
+                self.SetLightRing(0)
                 self.IntensityProtocol() # if self.intensity_protocol == 'state'
                 print('Entering Idle')
                 self.camera.StopGrabbing()
@@ -176,9 +181,13 @@ class HeatTest:
             pass
         self.camera.StopGrabbing()
         self.camera.Close()
+        try:
+            self.DisableCamera()
+        except:
+            pass
 
         self.DataProcess()
 
 if __name__ == '__main__':
-    capture_test = HeatTest(8000, 0, 5, 2)
+    capture_test = HeatTest(8000, 20, 10, 2)
     capture_test.Activate()
