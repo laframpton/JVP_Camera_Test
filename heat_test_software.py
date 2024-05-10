@@ -187,6 +187,6 @@ class HeatTest:
         self.DataProcess()
 
 if __name__ == '__main__':
-    capture_test = HeatTest(8000, 20, 10, 2, hardware_trigger=True)
+    capture_test = HeatTest(8000, 20, 10, 2, hardware_trigger=False)
     capture_test.Activate()
     GPIO.cleanup()
