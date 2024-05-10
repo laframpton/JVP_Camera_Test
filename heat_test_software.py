@@ -6,7 +6,6 @@ import time
 from subprocess import run
 import pickle
 
-os import environ
 import RPi.GPIO as GPIO
 
 
@@ -42,11 +41,7 @@ class HeatTest:
         try:
             camera = self.get_camera()
         except pylon.RuntimeException:
-            self.log.exception("No camera found. Falling back to emulated device.")
-            environ["PYLON_CAMEMU"] = "1"
-            camera = pylon.InstantCamera(
-                pylon.TlFactory.GetInstance().CreateFirstDevice()
-            )
+            print("Could not get camera")
 
         camera.Open()
         try:
