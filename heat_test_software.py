@@ -10,7 +10,7 @@ import RPi.GPIO as GPIO
 
 
 class HeatTest:
-    def __init__(self, exposure_time, idle_time, run_time, cycles=1, gpio_line='1', led_ring=31, frame_factor=250, hardware_trigger=False, intensity_protocol='number'):
+    def __init__(self, exposure_time, idle_time, run_time, cycles=1, gpio_line='3', led_ring=31, frame_factor=250, hardware_trigger=False, intensity_protocol='number'):
         self.exposure_time = exposure_time
         self.idle_time = idle_time
         self.run_time = run_time
@@ -53,8 +53,6 @@ class HeatTest:
 
                 camera.TriggerSelector = "FrameStart"
                 camera.TriggerSource = "Line" + self.gpio_line
-                if self.hardware_trigger == False:
-                    camera.TriggerSource = "Software"
                 camera.TriggerMode = "On"
                 camera.Height = self.CAPTURE_HEIGHT
                 camera.Width = self.CAPTURE_WIDTH
