@@ -11,7 +11,7 @@ import RPi.GPIO as GPIO
 
 
 class HeatTest:
-    def __init__(self, exposure_time, idle_time, run_time, cycles=1, gpio_line='3', led_ring=31, frame_factor=250, hardware_trigger=False, intensity_protocol='number'):
+    def __init__(self, exposure_time, idle_time, run_time, cycles=1, gpio_line='1', led_ring=31, frame_factor=250, hardware_trigger=False, intensity_protocol='number'):
         self.exposure_time = exposure_time
         self.idle_time = idle_time
         self.run_time = run_time
@@ -34,10 +34,11 @@ class HeatTest:
         GPIO.setup(self.led_ring, GPIO.OUT)
         GPIO.output(self.led_ring, GPIO.LOW)
 
-        self.camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice())
-        print(self.camera)
+    def get_camera(self) -> pylon.InstantCamera:
+        camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice())
+        return camera
 
-    def set_up_camera(self, line_selection: int = 1) -> pylon.InstantCamera:
+    def set_up_camera(self) -> pylon.InstantCamera:
         try:
             camera = self.get_camera()
         except pylon.RuntimeException:
@@ -52,12 +53,13 @@ class HeatTest:
             camera.UserSetSelector = "Default"
             camera.UserSetLoad.Execute()
             try:
-                camera.LineSelector = "Line" + str(line_selection)
+                camera.LineSelector = "Line" + self.gpio_line
                 camera.LineMode = "Input"
 
                 camera.TriggerSelector = "FrameStart"
-                camera.TriggerSource = "Line" + str(line_selection)
-                # camera.TriggerSource = "Software"
+                camera.TriggerSource = "Line" + self.gpio_line
+                if self.hardware_trigger == False:
+                    camera.TriggerSource = "Software"
                 camera.TriggerMode = "On"
                 camera.Height = self.CAPTURE_HEIGHT
                 camera.Width = self.CAPTURE_WIDTH
@@ -65,9 +67,9 @@ class HeatTest:
                 # camera.ExposureTimeMode.Value = 'Standard'
                 camera.ExposureTime.Value = self.EXPOSURE_VALUE
             except:
-                self.log.exception("Could not load gpio configuration of the camera")
+                print("Could not load gpio configuration of the camera")
         except Exception:
-            self.log.exception("Could not load camera settings")
+            print("Could not load camera settings")
 
         pylon.FeaturePersistence.Save("testPost.txt", camera.GetNodeMap())
         return camera
@@ -108,13 +110,6 @@ class HeatTest:
             plt.imshow(np.array(self.images[frame])[275:325,800:850], cmap=plt.cm.binary)
             plt.axis('on')
             plt.savefig(str(frame) + 'slice(' + str(time.monotonic()) + ').png', dpi=100, pad_inches=0.0, bbox_inches='tight')
-
-    def HardwareTrigger(self):
-        self.camera.LineSelector = "Line" + self.gpio_line
-        self.camera.LineMode = "Input"
-
-        self.camera.TriggerSelector = "FrameStart"
-        self.camera.TriggerSource = "Line" + self.gpio_line
 
     def IntensityProtocol(self):
         if self.intensity_protocol == 'number':
@@ -170,18 +165,8 @@ class HeatTest:
     def SetLightRing(self, value: int):
         self.WritePin(self.led_ring, value)
 
-    def Activate(self):
-        try:
-            self.EnableCamera()
-        except:
-            pass
-        
-        self.camera.Open()
-
-        if self.hardware_trigger == True:
-            self.HardwareTrigger()
-        else:
-            self.camera.TriggerSource.Value = "Software" # This sets the camera to work soley off of this software
+    def Activate(self): #TODO: Restruct
+        self.camera = self.set_up_camera()
         
         self.camera.StartGrabbing()
 
