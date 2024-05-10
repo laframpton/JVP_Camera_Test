@@ -67,9 +67,9 @@ class HeatTest:
 
     def ImageSubsection(self):
         for frame in range(len(self.images)):
-            self.mean = np.array(self.images[frame])[750:900,200:300].mean()
+            self.mean = np.array(self.images[frame])[275:325,800:850].mean()
             self.slice_intensity = np.append(self.slice_intensity,self.mean)
-            plt.imshow(np.array(self.images[frame])[750:900,200:300], cmap=plt.cm.binary)
+            plt.imshow(np.array(self.images[frame])[275:325,800:850], cmap=plt.cm.binary)
             plt.axis('on')
             plt.savefig(str(frame) + 'slice(' + str(time.monotonic()) + ').png', dpi=100, pad_inches=0.0, bbox_inches='tight')
 
@@ -79,9 +79,8 @@ class HeatTest:
 
         self.camera.TriggerSelector = "FrameStart"
         self.camera.TriggerSource = "Line" + self.gpio_line
-        self.camera.TriggerMode = "On"
 
-    def IntensityProtocol(self): #TODO: Add functionality for checking LED pixel
+    def IntensityProtocol(self):
         if self.intensity_protocol == 'number':
             self.frame_count += 1
             if self.frame_count % self.frame_factor == 0:
@@ -185,9 +184,9 @@ class HeatTest:
             self.DisableCamera()
         except:
             pass
-
         self.DataProcess()
 
 if __name__ == '__main__':
-    capture_test = HeatTest(8000, 20, 10, 2)
+    capture_test = HeatTest(8000, 20, 10, 2, hardware_trigger=True)
     capture_test.Activate()
+    GPIO.cleanup()
