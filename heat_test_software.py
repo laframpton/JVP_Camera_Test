@@ -54,11 +54,11 @@ class HeatTest:
                 camera.TriggerSelector = "FrameStart"
                 camera.TriggerSource = "Line" + self.gpio_line
                 camera.TriggerMode = "On"
-                camera.Height = self.CAPTURE_HEIGHT
-                camera.Width = self.CAPTURE_WIDTH
-                camera.PixelFormat.Value = self.CAPTURE_DATATYPE
-                # camera.ExposureTimeMode.Value = 'Standard'
-                camera.ExposureTime.Value = self.EXPOSURE_VALUE
+                #camera.Height = self.CAPTURE_HEIGHT
+                #camera.Width = self.CAPTURE_WIDTH
+                #camera.PixelFormat.Value = self.CAPTURE_DATATYPE
+                ## camera.ExposureTimeMode.Value = 'Standard'
+                #camera.ExposureTime.Value = self.EXPOSURE_VALUE
             except:
                 print("Could not load gpio configuration of the camera")
         except Exception:
