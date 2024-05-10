@@ -6,6 +6,7 @@ import time
 from subprocess import run
 import pickle
 
+os import environ
 import RPi.GPIO as GPIO
 
 
@@ -35,6 +36,41 @@ class HeatTest:
 
         self.camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice())
         print(self.camera)
+
+    def set_up_camera(self, line_selection: int = 1) -> pylon.InstantCamera:
+        try:
+            camera = self.get_camera()
+        except pylon.RuntimeException:
+            self.log.exception("No camera found. Falling back to emulated device.")
+            environ["PYLON_CAMEMU"] = "1"
+            camera = pylon.InstantCamera(
+                pylon.TlFactory.GetInstance().CreateFirstDevice()
+            )
+
+        camera.Open()
+        try:
+            camera.UserSetSelector = "Default"
+            camera.UserSetLoad.Execute()
+            try:
+                camera.LineSelector = "Line" + str(line_selection)
+                camera.LineMode = "Input"
+
+                camera.TriggerSelector = "FrameStart"
+                camera.TriggerSource = "Line" + str(line_selection)
+                # camera.TriggerSource = "Software"
+                camera.TriggerMode = "On"
+                camera.Height = self.CAPTURE_HEIGHT
+                camera.Width = self.CAPTURE_WIDTH
+                camera.PixelFormat.Value = self.CAPTURE_DATATYPE
+                # camera.ExposureTimeMode.Value = 'Standard'
+                camera.ExposureTime.Value = self.EXPOSURE_VALUE
+            except:
+                self.log.exception("Could not load gpio configuration of the camera")
+        except Exception:
+            self.log.exception("Could not load camera settings")
+
+        pylon.FeaturePersistence.Save("testPost.txt", camera.GetNodeMap())
+        return camera
 
     def DataProcess(self):
         self.grabbing_details = pd.DataFrame(self.grabbing_details, columns=['Time Stamp', 'Local Time', 'Temperature'])
