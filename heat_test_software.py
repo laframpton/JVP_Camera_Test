@@ -206,6 +206,13 @@ class HeatTest:
         except:
             pass
         self.DataProcess()
+        
+    def Activate(self): #TODO: Restruct
+        while True:
+            self.EnableCamera()
+            time.sleep(1)
+            self.DisableCamera()
+            time.sleep(1)
 
 if __name__ == '__main__':
     capture_test = HeatTest(8000, 10, 10, cycles=2, hardware_trigger=False, intensity_protocol='state')
